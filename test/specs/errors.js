@@ -83,9 +83,9 @@ describe('errors', function() {
             });
         });
 
-        it('should set position on the first char for `validateQuoteMarks` rule', function() {
+        it('should set position on the first char when offset is 0', function() {
             var position = Errors.getPosition({
-                rule: 'validateQuoteMarks',
+                offset: 0,
                 element: {
                     getNewlineCount: function() {
                         return 0;
