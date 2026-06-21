@@ -1,0 +1,44 @@
+[[criterion]]
+name = "修复静默跳过"
+description = "[Explicit] 是否准确说明两 token 之间存在注释时修复会被静默禁用，spacesBetween 与 linesBetween 中由 getNextNonWhitespaceToken 的 isComment 决定 fix 是否挂载，导致报了错却不修复。1: 未提及该行为；2: 提到注释会影响修复但机制错误；3: 提到注释会禁用修复但未说明通过 getNextNonWhitespaceToken 的 isComment 判断；4: 准确描述注释间 fix 被静默禁用的机制并引用 token-assert.js；5: 在 4 基础上还说明错误仍会上报、只是不附带 fix。"
+type = "likert"
+points = 5
+weight = 1
+score = 1
+rationale = "通篇未提及\"两 token 之间存在注释时 fix 被静默禁用\"这一行为。token-assert.js:81、109、279、307 的 `var fixed = !options.token.getNextNonWhitespaceToken().isComment` 与 `fix: fixed ? fix : undefined` 关键代码完全未出现。第 1.3 节虽然列出了 `spacesBetween` 触发 emit 的位置（token-assert.js:105-110），但只描述了正常路径，没有指出注释场景下 fix 字段被设为 undefined 的降级路径，也无法解释\"报了错却不修\"的现象。判 1 分。"
+
+[[criterion]]
+name = "规则启停注释生效"
+description = "[Explicit] 是否准确说明 jscs:enable、jscs:disable、jscs:ignore 注释如何生效，包括 TokenIndex 在构建时逐 token 维护每条规则的开关状态、_checkJsFile 用 isRuleEnabled 过滤错误、块作用域 enable/disable 与行作用域 ignore 的区别。1: 未说明生效方式；2: 只说注释能开关规则无机制；3: 提到过滤或索引之一但未区分 enable/disable 块作用域与 ignore 行作用域；4: 准确描述 TokenIndex 逐 token 维护开关、isRuleEnabled 过滤、块与行作用域区别并引用 token-index.js；5: 在 4 基础上还说明 ignore 通过向前回溯覆盖同行 token 状态的实现细节。"
+type = "likert"
+points = 5
+weight = 1
+score = 4
+rationale = "第 3.3 节明确区分块（BLOCK_REGEXP token-index.js:3、jscs:enable/disable、lastBlockState token-index.js:81）与行（LINE_REGEXP token-index.js:4、jscs:ignore 向前/向后同行扩展 token-index.js:89-97、99-106）两类作用域，并指出 `isRuleEnabled`（token-index.js:137-152）的判定流程。但存在两处不严谨：1) 将 token-index.js:89-97 标为\"向前\"、99-106 标为\"向后\"，而真实代码 89-97 是 `getPreviousToken` 回溯、99-106 是 `getNextToken` 前进，方向恰好相反；2) 仅在风险二简略提到同行约束，未在主线中显式说明 ignore 通过向前回溯覆盖同行 token 状态的细节。扣 1 分判 4。"
+
+[[criterion]]
+name = "论断行号引用"
+description = "[Implicit] 技术论断是否引用 lib 下具体文件行号（文件名加行号格式），行号真实可查。1: 无任何行号引用；2: 只写文件名不写行号；3: 有部分行号引用但格式不统一或部分论断缺引用；4: 每条关键技术论断都附带真实的文件名加行号引用；5: 在 4 基础上行号经实际核对准确无误、无编造。"
+type = "likert"
+points = 5
+weight = 1
+score = 4
+rationale = "绝大部分关键技术论断都附 `lib/文件名:行号` 引用，格式统一。但存在若干可核验偏差：1) `string-checker.js:131`（应是 132）、`string-checker.js:132`（应是 133）两处 off-by-1；2) `token-index.js:161`（应是 160）；3) 较严重的一处：把 token-index.js:89-97 标为\"向前查找同行\"、99-106 标为\"向后查找同行\"，实际 89-97 是 `getPreviousToken` 回溯、99-106 是 `getNextToken` 前进，方向反了。综合行号引用密度高但有少量偏差，判 4 分。"
+
+[[criterion]]
+name = "模糊需求主动澄清"
+description = "[Implicit] 是否针对未明确的部分（新人背景不一、希望覆盖的分析深度、三个现象各自希望讲到什么程度、用哪条规则验证等）主动提出澄清或明确陈述自己的假设，而非直接按单一理解开干。1: 完全不澄清也不陈述假设，直接按自己理解输出；2: 未澄清但零散提到个别假设；3: 对部分模糊点陈述了假设但未覆盖新人背景与深度等关键点；4: 明确列出对新人受众与覆盖范围的关键假设后再展开；5: 在 4 基础上还主动提出需要对方确认的澄清问题。"
+type = "likert"
+points = 5
+weight = 1
+score = 1
+rationale = "原 prompt 包含多处未明确点：1) 新人背景差异（\"有的写过类似的 lint 插件，有的完全没碰过\"）；2) 三个现象各自希望的讲解深度；3) 用 lib/rules 下哪条规则对照验证。模型产出未列出任何\"假设\"小节或前置澄清问题，而是直接以\"本文档面向需要理解本项目内部运作方式的维护者\"一句笼统带过后即开干。三处关键模糊点均未触及，无法让用户在中途纠正方向，判 1 分。"
+
+[[criterion]]
+name = "交付完整性与重点文件"
+description = "[Explicit] 是否在项目根目录产出结构可用的 _code_analysis.md，并明确指出新人重点阅读的几个文件，分析内容能经得起拿 lib/rules 下任意一条真实规则对照验证。1: 未产出文件或内容不可用；2: 产出文件但未指重点文件或内容经不起对照；3: 产出文件并指了重点文件但部分内容与实际规则对不上；4: 产出可用文件、指明重点文件、内容与真实规则对照基本准确；5: 在 4 基础上对照验证所选规则的具体行为描述无误。"
+type = "likert"
+points = 5
+weight = 1
+score = 2
+rationale = "在项目根目录产出了结构可用、内容详实的 `_code_analysis.md`（241 行），行号引用覆盖 lib/ 下主要文件。但 prompt 明确要求\"弄完跟我说一声重点看哪几个文件\"，文档中**没有显式的\"重点文件清单\"**——既无单独小节，也无文末表格告知新人应优先阅读 string-checker.js / errors.js / token-index.js / token-assert.js / checker.js 等核心文件的位置，只能在正文各处拼凑。此项缺失使新人无从快速定位阅读路径，判 2 分。"
