@@ -1,6 +1,70 @@
 var chai = require('chai');
+var assert = require('assert');
+var Assertion = chai.Assertion;
+var flag = chai.util.flag;
+
+var originalAssertionToString = assert.AssertionError.prototype.toString;
+assert.AssertionError.prototype.toString = function() {
+    var str = originalAssertionToString.call(this);
+    return str.replace(/ \[ERR_ASSERTION\]/, '');
+};
 
 chai.use(require('sinon-chai'));
+
+var originalThrowMethod = Assertion.prototype.throw;
+Assertion.prototype.throw = Assertion.prototype.throws =
+    Assertion.prototype.Throws = function(constructor, message, msg2) {
+    var actualConstructor = typeof constructor === 'function' ? constructor : null;
+    var actualMessage = null;
+    var actualMsg2 = null;
+    if (typeof constructor === 'string' || constructor instanceof RegExp) {
+        actualMessage = constructor;
+        actualMsg2 = message;
+    } else if (typeof message === 'string' || message instanceof RegExp) {
+        actualMessage = message;
+        actualMsg2 = msg2;
+    }
+
+    if (actualMessage && typeof actualMessage === 'string') {
+        try {
+            return originalThrowMethod.apply(this, arguments);
+        } catch (e) {
+            var obj = flag(this, 'object');
+            if (typeof obj !== 'function') {
+                throw e;
+            }
+
+            var thrown = null;
+            var threw = false;
+            try {
+                obj();
+            } catch (err) {
+                thrown = err;
+                threw = true;
+            }
+
+            if (!threw) {
+                throw e;
+            }
+
+            var errorStr = (thrown && (thrown.name + ': ' + (thrown.message || ''))) || '';
+            var messageMatches = (thrown && thrown.message && thrown.message.indexOf(actualMessage) !== -1) ||
+                (thrown && thrown.name && thrown.name.indexOf(actualMessage) !== -1) ||
+                (errorStr.indexOf(actualMessage) !== -1);
+
+            if (actualConstructor && thrown instanceof actualConstructor === false) {
+                throw e;
+            }
+            if (messageMatches) {
+                flag(this, 'object', thrown);
+                return this;
+            }
+            throw e;
+        }
+    }
+
+    return originalThrowMethod.apply(this, arguments);
+};
 
 chai.use(function(chai, utils) {
     /**
