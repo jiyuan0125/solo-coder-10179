@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var path = require('path');
+var chalk = require('chalk');
 
 var Checker = require('../../../lib/checker');
 var Configuration = require('../../../lib/config/configuration');
@@ -48,7 +49,8 @@ describe('lib/config/generator', function() {
         checker.registerDefaultRules();
 
         var lastPresetOrdinal = Object.keys(checker.getConfiguration().getRegisteredPresets()).length;
-        crockfordPresetChoice = { '\u001b[32mPlease choose a preset number:\u001b[39m':  lastPresetOrdinal };
+        crockfordPresetChoice = {};
+        crockfordPresetChoice[chalk.green('Please choose a preset number:')] = lastPresetOrdinal;
 
         return checker;
     }

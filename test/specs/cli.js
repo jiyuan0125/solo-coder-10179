@@ -38,6 +38,18 @@ describe('cli', function() {
         if (console.log.restore) {
             console.log.restore();
         }
+        if (configFile.load.restore) {
+            configFile.load.restore();
+        }
+        if (Checker.prototype.configure.restore) {
+            Checker.prototype.configure.restore();
+        }
+        if (Checker.prototype.checkPath.restore) {
+            Checker.prototype.checkPath.restore();
+        }
+        if (Checker.prototype.checkStdin.restore) {
+            Checker.prototype.checkStdin.restore();
+        }
 
         rAfter();
     });
@@ -66,6 +78,7 @@ describe('cli', function() {
         sinon.spy(console, 'error');
 
         var result = cli({
+            args: ['test/data/cli/error.js'],
             config: path.resolve(process.cwd(), './test/data/configs/json/corrupted.json')
         });
 
@@ -97,7 +110,7 @@ describe('cli', function() {
         });
 
         var result = cli({
-            args: []
+            args: ['test/data/cli/error.js']
         });
         var text = 'No configuration found. Add a .jscsrc file to your' +
             ' project root or use the -c option.';
@@ -160,6 +173,7 @@ describe('cli', function() {
         process.chdir('./test/');
 
         var result = cli({
+            args: ['data/cli/error.js'],
             config: 'config.js'
         });
 

@@ -213,17 +213,11 @@ describe('cli-config', function() {
             expect(reporter.path).to.equal(path.resolve('./test'));
         });
 
-        it('should get text reporter if tty does not support colors', function() {
-            var old = configFile.__get__('supportsColor');
-
-            configFile.__set__('supportsColor', false);
-
-            var reporter = configFile.getReporter();
+        it('should get text reporter when colors is explicitly false', function() {
+            var reporter = configFile.getReporter(null, false);
 
             expect(reporter.writer).to.be.a('function');
             expect(reporter.path).to.equal(path.resolve('./lib/reporters/text'));
-
-            configFile.__set__('supportsColor', old);
         });
 
         it('should fake reporter from node', function() {
