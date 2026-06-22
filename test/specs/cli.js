@@ -32,7 +32,13 @@ describe('cli', function() {
         process.stdin.isTTY = oldTTY;
         process.chdir(startingDir);
 
-        // If stdin rewrites were not used, restore them here
+        if (console.error.restore) {
+            console.error.restore();
+        }
+        if (console.log.restore) {
+            console.log.restore();
+        }
+
         rAfter();
     });
 
