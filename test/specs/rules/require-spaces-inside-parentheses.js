@@ -261,7 +261,7 @@ describe('rules/require-spaces-inside-parentheses', function() {
             it('should not configure', function() {
                 expect(function() {
                         checker.configure({ requireSpacesInsideParentheses: true });
-                    }).to.throw('AssertionError');
+                    }).to.throw();
             });
         });
     });

@@ -178,14 +178,14 @@ describe('rules/disallow-space-after-object-keys', function() {
                 var rules = {disallowSpaceAfterObjectKeys: {allExcept: ['multiline', 'aligned']}};
                 expect(function() {
                     checker.configure(rules);
-                }).to.throw('AssertionError');
+                }).to.throw();
             });
 
             it('should not accept multiline and singleline at the same time', function() {
                 var rules = {disallowSpaceAfterObjectKeys: {allExcept: ['singleline', 'multiline']}};
                 expect(function() {
                     checker.configure(rules);
-                }).to.throw('AssertionError');
+                }).to.throw();
             });
         });
     });

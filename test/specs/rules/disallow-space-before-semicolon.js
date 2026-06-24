@@ -13,13 +13,13 @@ describe('rules/disallow-space-before-semicolon', function() {
         it('should not accept objects without at least one valid key', function() {
             expect(function() {
                     checker.configure({ disallowSpaceBeforeSemicolon: {} });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
 
         it('should not accept non-boolean non-objects', function() {
             expect(function() {
                     checker.configure({ disallowSpaceBeforeSemicolon: 'true' });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 

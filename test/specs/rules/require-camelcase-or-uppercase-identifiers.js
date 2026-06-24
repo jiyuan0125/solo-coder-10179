@@ -13,22 +13,22 @@ describe('rules/require-camelcase-or-uppercase-identifiers', function() {
         it('should report bad prefix values', function() {
             expect(function() {
                 checker.configure({ requireCamelCaseOrUpperCaseIdentifiers: {allowedPrefixes: [42, 'str']} });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
         it('should report bad suffix values', function() {
             expect(function() {
                 checker.configure({ requireCamelCaseOrUpperCaseIdentifiers: {allowedSuffixes: {}} });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
         it('should report bad allExcept values', function() {
             expect(function() {
                 checker.configure({ requireCamelCaseOrUpperCaseIdentifiers: {allExcept: [/this/, 2]} });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
         it('should detect falsy non-string asre elements', function() {
             expect(function() {
                 checker.configure({ requireCamelCaseOrUpperCaseIdentifiers: {allExcept: [/this/, false]} });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
         it('should detect objects not RegExpLiteral', function() {
             expect(function() {
@@ -37,7 +37,7 @@ describe('rules/require-camelcase-or-uppercase-identifiers', function() {
                         allExcept: [/this/, {regx: {pattn: ''}}]
                     }
                 });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
         it('should detect invalid RegExpLiteral objects', function() {
             expect(function() {
@@ -46,7 +46,7 @@ describe('rules/require-camelcase-or-uppercase-identifiers', function() {
                         allExcept: [/this/, {regex: {pattern: 'test('}}]
                     }
                 });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
     });
 

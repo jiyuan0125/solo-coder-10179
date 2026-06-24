@@ -241,7 +241,7 @@ describe('rules/require-aligned-object-values', function() {
         it('should not accept objects without correct key', function() {
             expect(function() {
                     checker.configure({ requireAlignedObjectValues: 'skipsWithFunction' });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 });

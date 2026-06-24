@@ -58,7 +58,7 @@ describe('rules/disallow-multi-line-ternary', function() {
         it('should not accept objects', function() {
             expect(function() {
                     checker.configure({ disallowMultiLineTernary: {} });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 });

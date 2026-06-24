@@ -2,6 +2,37 @@ var expect = require('chai').expect;
 var sinon = require('sinon');
 var Configuration = require('../../../lib/config/configuration');
 
+// Helper: build a minimal rule mock that satisfies the registerRule contract.
+// Accepts an optional name and overrides for the rule's methods.
+function makeRuleMock(name, overrides) {
+    var rule = {
+        getOptionName: function() {
+            return name || 'mockRule';
+        },
+        configure: function() {
+        },
+        check: function() {
+        }
+    };
+    if (overrides) {
+        Object.keys(overrides).forEach(function(key) {
+            rule[key] = overrides[key];
+        });
+    }
+    return rule;
+}
+
+// Helper: build a Rule class (constructor) that satisfies the registerRule contract.
+function makeRuleClassMock(name, overrides) {
+    return function() {
+        var _this = this;
+        var mock = makeRuleMock(name, overrides);
+        Object.keys(mock).forEach(function(key) {
+            _this[key] = mock[key];
+        });
+    };
+}
+
 describe('config/configuration', function() {
 
     var configuration;
@@ -33,11 +64,7 @@ describe('config/configuration', function() {
 
     describe('registerRule', function() {
         it('should add rule to registered rule list', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                }
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerRule(rule);
             expect(configuration.getRegisteredRules().length).to.equal(1);
             expect(configuration.getRegisteredRules()[0]).to.equal(rule);
@@ -45,11 +72,7 @@ describe('config/configuration', function() {
         });
 
         it('should accept class', function() {
-            var Rule = function() {
-                this.getOptionName = function() {
-                    return 'ruleName';
-                };
-            };
+            var Rule = makeRuleClassMock('ruleName');
             configuration.registerRule(Rule);
             expect(configuration.getRegisteredRules().length).to.equal(1);
             expect(configuration.getRegisteredRules()[0]).to.be.an.instanceof(Rule);
@@ -57,11 +80,7 @@ describe('config/configuration', function() {
         });
 
         it('should fail on duplicate rule name', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                }
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerRule(rule);
             try {
                 configuration.registerRule(rule);
@@ -74,16 +93,8 @@ describe('config/configuration', function() {
 
     describe('getRegisteredRules', function() {
         it('should return registered rule list', function() {
-            var rule1 = {
-                getOptionName: function() {
-                    return 'ruleName1';
-                }
-            };
-            var rule2 = {
-                getOptionName: function() {
-                    return 'ruleName2';
-                }
-            };
+            var rule1 = makeRuleMock('ruleName1');
+            var rule2 = makeRuleMock('ruleName2');
             configuration.registerRule(rule1);
             configuration.registerRule(rule2);
             expect(configuration.getRegisteredRules().length).to.equal(2);
@@ -249,12 +260,7 @@ describe('config/configuration', function() {
     describe('getConfiguredRules', function() {
         it('should return configured rules after config load', function() {
             expect(configuration.getConfiguredRules().length).to.equal(0);
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerRule(rule);
             configuration.load({ruleName: true});
             expect(configuration.getConfiguredRules().length).to.equal(1);
@@ -265,12 +271,7 @@ describe('config/configuration', function() {
     describe('getConfiguredRule', function() {
         it('should return configured rule after config load', function() {
             expect(configuration.getConfiguredRule('ruleName')).to.equal(null);
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerRule(rule);
             configuration.load({ruleName: true});
             expect(configuration.getConfiguredRule('ruleName')).to.be.a('object');
@@ -441,12 +442,7 @@ describe('config/configuration', function() {
 
     describe('load', function() {
         it('should configure rules', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             var configureSpy = sinon.spy(rule, 'configure');
             configuration.registerRule(rule);
             configuration.load({ruleName: true});
@@ -457,12 +453,7 @@ describe('config/configuration', function() {
         });
 
         it('should not configure rule on null', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             var configureSpy = sinon.spy(rule, 'configure');
             configuration.registerRule(rule);
             configuration.load({ruleName: null});
@@ -471,12 +462,7 @@ describe('config/configuration', function() {
         });
 
         it('should not configure rule on false', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             var configureSpy = sinon.spy(rule, 'configure');
             configuration.registerRule(rule);
             configuration.load({ruleName: false});
@@ -651,12 +637,7 @@ describe('config/configuration', function() {
         });
 
         it('should not try go in infinite loop at circular preset references', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerRule(rule);
 
             configuration.registerPreset('test1', {
@@ -680,12 +661,7 @@ describe('config/configuration', function() {
         });
 
         it('should load preset from the preset with additional rule', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerPreset('test1', {
                 es3: true,
                 ruleName: 'test',
@@ -721,12 +697,7 @@ describe('config/configuration', function() {
         });
 
         it('should load `preset` rule settings', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.registerRule(rule);
             configuration.registerPreset('preset', {ruleName: true});
             configuration.load({preset: 'preset'});
@@ -753,12 +724,7 @@ describe('config/configuration', function() {
         });
 
         it('should accept `additionalRules` to register rules', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.load({additionalRules: [rule]});
             expect(configuration.getRegisteredRules().length).to.equal(1);
             expect(configuration.getRegisteredRules()[0]).to.equal(rule);
@@ -766,12 +732,7 @@ describe('config/configuration', function() {
         });
 
         it('should accept `additionalRules` to configure rules', function() {
-            var rule = {
-                getOptionName: function() {
-                    return 'ruleName';
-                },
-                configure: function() {}
-            };
+            var rule = makeRuleMock('ruleName');
             configuration.load({additionalRules: [rule], ruleName: true});
             expect(configuration.getConfiguredRules().length).to.equal(1);
             expect(configuration.getConfiguredRules()[0]).to.equal(rule);

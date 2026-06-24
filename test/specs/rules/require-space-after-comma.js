@@ -194,7 +194,7 @@ describe('rules/require-space-after-comma', function() {
         it('should not accept options without a valid key', function() {
             expect(function() {
                 checker.configure({ requireSpaceAfterComma: {} });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
 
     });

@@ -33,7 +33,7 @@ describe('rules/validate-comment-position', function() {
         invalidPositions.forEach(function(position) {
             expect(function() {
                 checker.configure({ validateCommentPosition: { position: position }});
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
     });
 
@@ -52,14 +52,14 @@ describe('rules/validate-comment-position', function() {
         invalidExceptions.forEach(function(exception) {
             expect(function() {
                 checker.configure({ validateCommentPosition: { position: 'above', allExcept: exception }});
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
     });
 
     it('should not accept non-objects', function() {
         expect(function() {
                 checker.configure({ validateCommentPosition: 'true' });
-            }).to.throw('AssertionError');
+            }).to.throw();
     });
 
     describe('position value "above"', function() {

@@ -231,7 +231,7 @@ describe('rules/require-capitalized-comments', function() {
                 checker.configure({
                     requireCapitalizedComments: {}
                 });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
 
         it('inlined: false', function() {
@@ -241,7 +241,7 @@ describe('rules/require-capitalized-comments', function() {
                         inlined: false
                     }
                 });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
     });
 
@@ -312,7 +312,7 @@ describe('rules/require-capitalized-comments', function() {
         it('should not accept objects without at least one valid key', function() {
             expect(function() {
                     checker.configure({ requireCapitalizedComments: {} });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 

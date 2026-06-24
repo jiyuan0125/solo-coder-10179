@@ -318,7 +318,8 @@ describe('modules/config/node-configuration', function() {
                 },
                 configure: function(config) {
                     this.value = config;
-                }
+                },
+                check: function() {}
             });
 
             configuration.load({
@@ -367,7 +368,8 @@ describe('modules/config/node-configuration', function() {
                 getOptionName: function() {
                     return 'ruleName';
                 },
-                configure: function() {}
+                configure: function() {},
+                check: function() {}
             };
             configuration.load({additionalRules: [rule]});
             expect(configuration.getRegisteredRules().length).to.equal(1);

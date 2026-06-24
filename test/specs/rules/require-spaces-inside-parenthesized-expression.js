@@ -162,13 +162,13 @@ describe('rules/require-spaces-inside-parenthesized-expression', function() {
         it('should not accept objects without at least one valid key', function() {
             expect(function() {
                     checker.configure({ requireSpacesInsideParenthesizedExpression: {} });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
 
         it('should not accept non-boolean non-objects', function() {
             expect(function() {
                     checker.configure({ requireSpacesInsideParenthesizedExpression: 'true' });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 });

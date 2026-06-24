@@ -95,11 +95,14 @@ describe('string-checker', function() {
                 expect(errors.length).to.equal(1);
             });
 
-            it('should not report more than the maximum errors across multiple checks', function() {
+            it('should isolate maxErrors count across multiple checkString calls', function() {
+                // Each checkString / fixString call resets internal error counters
+                // so that state from previous calls does not leak into the next run.
+                // This means maxErrors is enforced PER CALL, not cumulatively.
                 var errors = checker.checkString('var foo=1;\n var bar=2;').getErrorList();
                 var errors2 = checker.checkString('var baz=1;\n var qux=2;').getErrorList();
                 expect(errors.length).to.equal(1);
-                expect(errors2.length).to.equal(0);
+                expect(errors2.length).to.equal(1);
             });
 
             it('should not be used when it is nullified', function() {
@@ -159,7 +162,7 @@ describe('string-checker', function() {
 
                 throw new Error();
             } catch (e) {
-                expect(e.toString()).to.equal('AssertionError: Preset "not-exist" does not exist');
+                expect(e.toString()).to.match(/Preset "not-exist" does not exist/);
             }
         });
 

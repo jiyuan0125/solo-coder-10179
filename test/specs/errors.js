@@ -21,61 +21,53 @@ describe('errors', function() {
     });
 
     describe('getPosition', function() {
-        it('should get position', function() {
-            var position = Errors.getPosition({
-                element: {
-                    getNewlineCount: function() {
-                        return 0;
-                    },
-                    getSourceCodeLength: function() {
-                        return 1;
-                    },
-                    getLoc: function() {
-                        return {
-                            start: {
-                                line: 1,
-                                column: 10
-                            },
-
-                            end: {
-                                line: 1,
-                                column: 20
-                            }
-                        };
-                    }
+        // Helper: build a mock tokenIndex whose getElementLoc returns
+        // element.getFirstToken().__loc, mirroring TokenIndex behavior.
+        function mockTokenIndex() {
+            return {
+                getElementLoc: function(element) {
+                    var token = element.getFirstToken ? element.getFirstToken() : element;
+                    return token && token.__loc;
                 }
-            });
+            };
+        }
 
-            expect(position).to.deep.equal({
-                line: 1,
-                column: 10
-            });
+        it('should get position', function() {
+            var elementPos = { line: 1, column: 10 };
+            var element = {
+                getNewlineCount: function() {
+                    return 0;
+                },
+                getSourceCodeLength: function() {
+                    return 1;
+                },
+                getFirstToken: function() {
+                    return { __loc: elementPos };
+                }
+            };
+            var position = Errors.getPosition({
+                element: element
+            }, mockTokenIndex());
+
+            expect(position).to.deep.equal(elementPos);
         });
 
         it('should get position for element with length > 1', function() {
-            var position = Errors.getPosition({
-                element: {
-                    getNewlineCount: function() {
-                        return 0;
-                    },
-                    getSourceCodeLength: function() {
-                        return 10;
-                    },
-                    getLoc: function() {
-                        return {
-                            start: {
-                                line: 1,
-                                column: 10
-                            },
-
-                            end: {
-                                line: 1,
-                                column: 20
-                            }
-                        };
-                    }
+            var elementPos = { line: 1, column: 10 };
+            var element = {
+                getNewlineCount: function() {
+                    return 0;
+                },
+                getSourceCodeLength: function() {
+                    return 10;
+                },
+                getFirstToken: function() {
+                    return { __loc: elementPos };
                 }
-            });
+            };
+            var position = Errors.getPosition({
+                element: element
+            }, mockTokenIndex());
 
             expect(position).to.deep.equal({
                 line: 1,
@@ -84,35 +76,24 @@ describe('errors', function() {
         });
 
         it('should set position on the first char for `validateQuoteMarks` rule', function() {
+            var elementPos = { line: 1, column: 10 };
+            var element = {
+                getNewlineCount: function() {
+                    return 0;
+                },
+                getSourceCodeLength: function() {
+                    return 10;
+                },
+                getFirstToken: function() {
+                    return { __loc: elementPos };
+                }
+            };
             var position = Errors.getPosition({
                 rule: 'validateQuoteMarks',
-                element: {
-                    getNewlineCount: function() {
-                        return 0;
-                    },
-                    getSourceCodeLength: function() {
-                        return 10;
-                    },
-                    getLoc: function() {
-                        return {
-                            start: {
-                                line: 1,
-                                column: 10
-                            },
+                element: element
+            }, mockTokenIndex());
 
-                            end: {
-                                line: 1,
-                                column: 20
-                            }
-                        };
-                    }
-                }
-            });
-
-            expect(position).to.deep.equal({
-                line: 1,
-                column: 10
-            });
+            expect(position).to.deep.equal(elementPos);
         });
     });
 

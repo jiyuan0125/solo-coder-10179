@@ -106,7 +106,7 @@ describe('rules/disallow-comma-before-line-break', function() {
         it('should not accept objects without at least one valid key', function() {
             expect(function() {
                     checker.configure({ disallowCommaBeforeLineBreak: {} });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 });

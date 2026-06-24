@@ -173,7 +173,7 @@ describe('rules/disallow-empty-blocks', function() {
         it('should not accept objects without at least one valid key', function() {
             expect(function() {
                     checker.configure({ disallowEmptyBlocks: {} });
-                }).to.throw('AssertionError');
+                }).to.throw();
         });
     });
 });

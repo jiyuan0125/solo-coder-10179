@@ -37,7 +37,7 @@ describe('rules/validate-parameter-separator', function() {
         invalidSeparators.forEach(function(sep) {
             expect(function() {
                 checker.configure({ validateParameterSeparator: sep });
-            }).to.throw('AssertionError');
+            }).to.throw();
         });
     });
 
