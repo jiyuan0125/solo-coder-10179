@@ -1,0 +1,44 @@
+[[criterion]]
+name = "修复静默跳过"
+description = "[Explicit] 是否准确说明两 token 之间存在注释时修复会被静默禁用，spacesBetween 与 linesBetween 中由 getNextNonWhitespaceToken 的 isComment 决定 fix 是否挂载，导致报了错却不修复。1: 未提及该行为；2: 提到注释会影响修复但机制错误；3: 提到注释会禁用修复但未说明通过 getNextNonWhitespaceToken 的 isComment 判断；4: 准确描述注释间 fix 被静默禁用的机制并引用 token-assert.js；5: 在 4 基础上还说明错误仍会上报、只是不附带 fix。"
+type = "likert"
+points = 5
+weight = 1
+score = 5
+rationale = "2.1 节末尾的\"为什么有时改不动\"中显式列出第二种情况：\"断言主动放弃修复：当两 token 之间夹着注释时，TokenAssert 会把 fix 设成 undefined（token-assert.js:81 与 109 行的 `fixed ? fix : undefined`；换行类断言同理见 token-assert.js:279、307）\"。风险三独立重申该机制并指出\"错误会照常出现在报告里，但 error.fix 不存在 → _fixCommonError 不命中（string-checker.js:104-114）\"，给出排查建议\"确认出错位置附近是否夹着注释\"。机制、引文、影响三层闭环。"
+
+[[criterion]]
+name = "规则启停注释生效"
+description = "[Explicit] 是否准确说明 jscs:enable、jscs:disable、jscs:ignore 注释如何生效，包括 TokenIndex 在构建时逐 token 维护每条规则的开关状态、_checkJsFile 用 isRuleEnabled 过滤错误、块作用域 enable/disable 与行作用域 ignore 的区别。1: 未说明生效方式；2: 只说注释能开关规则无机制；3: 提到过滤或索引之一但未区分 enable/disable 块作用域与 ignore 行作用域；4: 准确描述 TokenIndex 逐 token 维护开关、isRuleEnabled 过滤、块与行作用域区别并引用 token-index.js；5: 在 4 基础上还说明 ignore 通过向前回溯覆盖同行 token 状态的实现细节。"
+type = "likert"
+points = 5
+weight = 1
+score = 5
+rationale = "3.4 节系统覆盖：识别（BLOCK_REGEXP token-index.js:3-4）→ 解析 `parseRuleNames`（token-index.js:13-27）→ 构建 `_buildIndex`（token-index.js:46-128）内同时维护 `lastBlockState`（初始 `{'*': true}`，token-index.js:54）、块指令合并（token-index.js:78-82）、行指令向前回溯（token-index.js:84-98 段逐 token 用 `getPreviousToken` + `getNewlineCount > 0` 终止）与向后扩展（token-index.js:99-106）。`isRuleEnabled`（token-index.js:137-152）的判定、无 pragma 短路（token-index.js:138-140）、规则名回退到 `*`（token-index.js:144-149）都讲清。生效点 string-checker.js:203-209 引用准确。方向描述、细节均无误。"
+
+[[criterion]]
+name = "论断行号引用"
+description = "[Implicit] 技术论断是否引用 lib 下具体文件行号（文件名加行号格式），行号真实可查。1: 无任何行号引用；2: 只写文件名不写行号；3: 有部分行号引用但格式不统一或部分论断缺引用；4: 每条关键技术论断都附带真实的文件名加行号引用；5: 在 4 基础上行号经实际核对准确无误、无编造。"
+type = "likert"
+points = 5
+weight = 1
+score = 5
+rationale = "全文几乎每条论断都附 `lib/文件名:行号`，格式统一为「文件:行号」或「文件:起-止」。我抽样核验了 string-checker.js（6、75-95、178-231、185-194、186、189、190-193、196-198、200-230、276-314、282-289、290-310、294、297、299-301、303-305、307-309、310、312）、errors.js（26-27、38-49、56-58、82-93、101-109、143-147、179-185、194-214、282-285、294-353）、token-index.js（3-4、13-27、46-128、54、60、62-74、78-107、116-120、137-152、160-165）、token-assert.js（17、29-32、44-47、62-131、105-110、143-173、228-247、264-327、342-366）、js-file.js（66-68、99-115、507-509、669-671）、checker.js（15-19、35-39、47-55、63-74、112-124）等行号，与源码一一吻合，无编造。末尾\"验证建议\"还给出 4 条对照验证项。"
+
+[[criterion]]
+name = "模糊需求主动澄清"
+description = "[Implicit] 是否针对未明确的部分（新人背景不一、希望覆盖的分析深度、三个现象各自希望讲到什么程度、用哪条规则验证等）主动提出澄清或明确陈述自己的假设，而非直接按单一理解开干。1: 完全不澄清也不陈述假设，直接按自己理解输出；2: 未澄清但零散提到个别假设；3: 对部分模糊点陈述了假设但未覆盖新人背景与深度等关键点；4: 明确列出对新人受众与覆盖范围的关键假设后再展开；5: 在 4 基础上还主动提出需要对方确认的澄清问题。"
+type = "likert"
+points = 5
+weight = 1
+score = 2
+rationale = "开篇假设\"本文面向接手维护的新人\"与\"三块核心机制讲清楚\"是对受众与覆盖范围的零星假设。但未在开干前列出\"新人背景差异如何处理\"（写过的 vs 没碰过的）、\"三个现象的讲解深度选择\"（检查流程 vs 修复流程 vs 注释指令各自的详略权衡）、\"用哪条规则做对照验证\"等待澄清/待确认的问题，而是直接展开。末尾的\"验证建议\"与\"重点文件清单\"部分回应了对照验证与重点文件两件事，但属于事后补救而非事前澄清。判 2 分。"
+
+[[criterion]]
+name = "交付完整性与重点文件"
+description = "[Explicit] 是否在项目根目录产出结构可用的 _code_analysis.md，并明确指出新人重点阅读的几个文件，分析内容能经得起拿 lib/rules 下任意一条真实规则对照验证。1: 未产出文件或内容不可用；2: 产出文件但未指重点文件或内容经不起对照；3: 产出文件并指了重点文件但部分内容与实际规则对不上；4: 产出可用文件、指明重点文件、内容与真实规则对照基本准确；5: 在 4 基础上对照验证所选规则的具体行为描述无误。"
+type = "likert"
+points = 5
+weight = 1
+score = 5
+rationale = "在项目根目录产出 `_code_analysis.md`（264 行），文末\"重点文件清单（建议新人按此顺序读）\"以 7 行表格给出 1) lib/string-checker.js 2) lib/errors.js 3) lib/token-index.js 4) lib/token-assert.js 5) lib/checker.js 6) lib/config/configuration.js 7) lib/rules/*.js 的优先级与\"看什么\"列。\"验证建议\"还给出 4 条可对照的验证步骤（挑一条断言式规则如 disallow-multiple-spaces、挑一条带 _fix 的如 disallow-trailing-whitespace、造多轮修复例子、jscs:disable 行内验证）。对 lib/rules 下真实规则（disallow-multiple-spaces.js、disallow-trailing-whitespace.js、require-space-before-binary-operators.js、require-semicolons.js）的描述与源码吻合，可作新人入门索引。"

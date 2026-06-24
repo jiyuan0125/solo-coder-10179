@@ -1,0 +1,104 @@
+[[criterion]]
+name = "检查流程规则调度"
+description = "[Explicit] 是否准确说明 checkString/_checkJsFile 中规则的调度方式：遍历已配置规则集合、对每条规则设置当前规则名并调用其 check(file, errors)、规则内部通过 file 与 errors 进行检查。1: 未提及规则调度或错误描述调度方式；2: 仅笼统说遍历规则无调用细节；3: 提到 rule.check 调用但漏掉 errors.setCurrentRule 或 try/catch 容错之一；4: 准确描述遍历 _configuredRules 调 rule.check 并设置当前规则名，引用 string-checker.js；5: 在 4 基础上还说明规则异常被捕获记为 internalError 不中断整体检查。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "错误收集机制"
+description = "[Explicit] 是否准确说明风格错误如何被收集进错误列表，包括规则通过 errors.add 或 errors.assert 的断言方法上报、TokenAssert 以 emit 方式把错误交给 Errors._addError 入队。1: 未说明错误收集方式；2: 只说规则报错无机制；3: 提到 errors.add 或 errors.assert 之一但未说明 TokenAssert 与 emit 的关系；4: 准确说明 errors.add 与 TokenAssert.emit 到 _addError 入队的链路并引用 errors.js 或 token-assert.js；5: 在 4 基础上还说明每条错误携带 message、element、offset、fix 等字段。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "错误位置计算"
+description = "[Explicit] 是否准确说明错误位置如何从 CST 元素与 offset 计算而来，包括 calculateErrorLocations 调用 Errors.getPosition、offset 未指定时按元素长度与换行数的启发式、对 validateQuoteMarks 等规则名的硬编码特判。1: 未提及位置计算；2: 只说根据元素定位无细节；3: 提到 calculateErrorLocations 或 offset 启发式之一但漏掉硬编码特判；4: 准确描述 getPosition 的 offset 启发式与 calculateErrorLocations 流程并引用 errors.js；5: 在 4 基础上还指出 validateQuoteMarks 等按规则名特判 offset 的风险。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "修复多轮循环"
+description = "[Explicit] 是否准确说明 fixString 的多轮修复循环，包括最多 5 轮、每轮检查后应用修复、再用 file.render 重新序列化并以 new JsFile 重新解析、重建 errors、根据是否有 fixed 判断是否继续。1: 未提及修复循环；2: 只说会多改几遍无机制；3: 提到循环或重新解析之一但漏掉 errors 重建或终止条件；4: 准确描述 5 轮循环、重新序列化与重新解析、errors 重建与终止判断，引用 string-checker.js；5: 在 4 基础上还说明修复引入新违例时可能不收敛、也不产生告警的风险。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "修复静默跳过"
+description = "[Explicit] 是否准确说明两 token 之间存在注释时修复会被静默禁用，spacesBetween 与 linesBetween 中由 getNextNonWhitespaceToken 的 isComment 决定 fix 是否挂载，导致报了错却不修复。1: 未提及该行为；2: 提到注释会影响修复但机制错误；3: 提到注释会禁用修复但未说明通过 getNextNonWhitespaceToken 的 isComment 判断；4: 准确描述注释间 fix 被静默禁用的机制并引用 token-assert.js；5: 在 4 基础上还说明错误仍会上报、只是不附带 fix。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "修复执行与放弃契约"
+description = "[Explicit] 是否准确说明修复的执行与放弃机制，包括：_fixCommonError 先置 error.fixed 为 true 再调 error.fix、_fixSpecificError 调用规则的 _fix、fix 闭包内可把 error.fixed 改回 false 以放弃本次修复。1: 未提及执行与放弃机制；2: 只说调用 fix 无契约细节；3: 提到 error.fix 调用但漏掉乐观置位或放弃机制之一；4: 准确描述乐观 fixed 置位、fix 执行与 fixed 为 false 放弃的契约并引用 string-checker.js；5: 在 4 基础上还说明该契约让规则可自行决定是否修复某条错误。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "规则启停注释生效"
+description = "[Explicit] 是否准确说明 jscs:enable、jscs:disable、jscs:ignore 注释如何生效，包括 TokenIndex 在构建时逐 token 维护每条规则的开关状态、_checkJsFile 用 isRuleEnabled 过滤错误、块作用域 enable/disable 与行作用域 ignore 的区别。1: 未说明生效方式；2: 只说注释能开关规则无机制；3: 提到过滤或索引之一但未区分 enable/disable 块作用域与 ignore 行作用域；4: 准确描述 TokenIndex 逐 token 维护开关、isRuleEnabled 过滤、块与行作用域区别并引用 token-index.js；5: 在 4 基础上还说明 ignore 通过向前回溯覆盖同行 token 状态的实现细节。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "规则编写接口"
+description = "[Explicit] 是否清楚说明一条规则需要实现的接口契约，包括 configure 接收配置、getOptionName 返回规则名、check 执行检查、可选的 _fix 提供修复，足以让新人参照写出新规则。1: 未说明规则接口；2: 只提到 check 函数无其他成员；3: 列出部分接口但漏掉 configure 或 getOptionName 之一；4: 完整说明 configure、getOptionName、check 及可选 _fix 接口及其职责；5: 在 4 基础上还结合 lib/rules 下真实规则示例说明接口用法。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "文档五小节结构"
+description = "[Implicit] 产出的 _code_analysis.md 是否遵循项目约定文件中规定的五个固定小节（检查流程、修复流程、错误位置计算、规则编写接口、潜在风险点）及其顺序。1: 未采用约定结构；2: 有部分小节但名称或顺序与约定不符；3: 五个小节大致都有但顺序错乱或有一个命名偏差；4: 严格采用五个约定小节及顺序；5: 在 4 基础上各小节内容与小节主题严格对应、无错位。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "论断行号引用"
+description = "[Implicit] 技术论断是否引用 lib 下具体文件行号（文件名加行号格式），行号真实可查。1: 无任何行号引用；2: 只写文件名不写行号；3: 有部分行号引用但格式不统一或部分论断缺引用；4: 每条关键技术论断都附带真实的文件名加行号引用；5: 在 4 基础上行号经实际核对准确无误、无编造。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "修复数据流呈现"
+description = "[Implicit] 修复流程小节是否包含一段从源码输入到修复后输出的完整数据流文字描述，并标明每一轮重新解析发生在哪一步、循环何时终止。1: 无数据流描述；2: 只有零散步骤无数据流；3: 有数据流但未标明重新解析时机或终止条件；4: 完整描述输入到检查到修复到重新序列化到重新解析到终止的数据流并标明重新解析与终止点；5: 在 4 基础上还说明 errors 重建与前一轮错误丢弃的衔接。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "ES5术语使用"
+description = "[Implicit] 描述现有实现时是否使用 ES5 术语（prototype、构造函数、utils.inherits 继承），未混入 class、箭头函数、async/await、ES module 等不属于本项目的术语。1: 大量混入非 ES5 术语描述现有代码；2: 多处混入；3: 偶有混入；4: 全程使用 ES5 术语描述现有实现；5: 在 4 基础上还能指出本项目刻意使用 ES5 的原因或约束。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "模糊需求主动澄清"
+description = "[Implicit] 是否针对未明确的部分（新人背景不一、希望覆盖的分析深度、三个现象各自希望讲到什么程度、用哪条规则验证等）主动提出澄清或明确陈述自己的假设，而非直接按单一理解开干。1: 完全不澄清也不陈述假设，直接按自己理解输出；2: 未澄清但零散提到个别假设；3: 对部分模糊点陈述了假设但未覆盖新人背景与深度等关键点；4: 明确列出对新人受众与覆盖范围的关键假设后再展开；5: 在 4 基础上还主动提出需要对方确认的澄清问题。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "交付完整性与重点文件"
+description = "[Explicit] 是否在项目根目录产出结构可用的 _code_analysis.md，并明确指出新人重点阅读的几个文件，分析内容能经得起拿 lib/rules 下任意一条真实规则对照验证。1: 未产出文件或内容不可用；2: 产出文件但未指重点文件或内容经不起对照；3: 产出文件并指了重点文件但部分内容与实际规则对不上；4: 产出可用文件、指明重点文件、内容与真实规则对照基本准确；5: 在 4 基础上对照验证所选规则的具体行为描述无误。"
+type = "likert"
+points = 5
+weight = 1.0
+
+[[criterion]]
+name = "风险点深度"
+description = "[Implicit] 是否列出至少 3 个潜在风险点，每个都说明触发条件与具体影响，而非只罗列名词。1: 未列风险点；2: 列了风险点但只给名词无触发条件与影响；3: 列了 3 个但部分缺触发条件或影响；4: 列出至少 3 个风险点，每个含触发条件与影响；5: 在 4 基础上风险点均基于源码真实机制、引用行号、影响描述准确。"
+type = "likert"
+points = 5
+weight = 1.0
